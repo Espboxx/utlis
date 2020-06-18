@@ -6,6 +6,7 @@ import com.aliyun.oss.model.PutObjectRequest;
 import com.aliyun.oss.model.PutObjectResult;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -31,6 +32,7 @@ public class OSSFileImp {
      * @param FileUrl 网络文件Url
      * @param FileName 上传之后的文件名
      * @throws IOException
+     * @return 返回地址
      */
     public String ossUrlFileUpload(String FileUrl, String FileName) throws IOException {
         // 创建OSSClient实例。
@@ -51,7 +53,7 @@ public class OSSFileImp {
      *
      * @param content 上传的字符串
      * @param FileName 上传之后的文件名
-     * @return
+     * @return 返回地址
      */
     public String ossStringFileUpload(String content,String FileName){
 
@@ -72,6 +74,12 @@ public class OSSFileImp {
     }
 
 
+    /**
+     *
+     * @param content 上传字节数组
+     * @param FileName 上传之后文件名
+     * @return 返回地址
+     */
     public String ossByteUpload(byte[] content,String FileName){
 
         // 创建OSSClient实例。
@@ -80,6 +88,37 @@ public class OSSFileImp {
         ossClient.putObject(bucketName, FileName, new ByteArrayInputStream(content));
         // 关闭OSSClient。
         ossClient.shutdown();
+        return "https://"+bucketName+"."+endpoint+"/"+FileName;
+    }
+
+
+    /**
+     *
+     * @param file 上传文件
+     * @param FileName 上传之后的文件名
+     * @return 返回地址
+     */
+    public String ossFileUpload(File file,String FileName){
+
+        // 创建OSSClient实例。
+        OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+
+// 创建PutObjectRequest对象。
+        PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, FileName,file);
+
+// 如果需要上传时设置存储类型与访问权限，请参考以下示例代码。
+// ObjectMetadata metadata = new ObjectMetadata();
+// metadata.setHeader(OSSHeaders.OSS_STORAGE_CLASS, StorageClass.Standard.toString());
+// metadata.setObjectAcl(CannedAccessControlList.Private);
+// putObjectRequest.setMetadata(metadata);
+
+// 上传文件。
+        ossClient.putObject(putObjectRequest);
+
+// 关闭OSSClient。
+        ossClient.shutdown();
+
+
         return "https://"+bucketName+"."+endpoint+"/"+FileName;
     }
 
